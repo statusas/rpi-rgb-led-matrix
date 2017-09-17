@@ -114,6 +114,22 @@ private:
   RotateTransformer rotated_;
 }  __attribute__((deprecated));
 
+// A transformer for 1/64 scan screens
+class Scan64Transformer : public CanvasTransformer {
+public:
+  Scan64Transformer();
+  ~Scan64Transformer();
+
+  virtual Canvas *Transform(Canvas *output);
+
+private:
+  class TransformCanvas;
+
+  TransformCanvas *const canvas_;
+};
+
+
+
 } // namespace rgb_matrix
 
 #endif // RPI_TRANSFORMER_H

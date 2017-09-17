@@ -228,4 +228,77 @@ LargeSquare64x64Transformer::LargeSquare64x64Transformer()
 Canvas *LargeSquare64x64Transformer::Transform(Canvas *output) {
   return rotated_.Transform(arrange_.Transform(output));
 }
+
+// Scan 64 transformer
+class Scan64Transformer::TransformCanvas : public Canvas {
+public:
+  TransformCanvas() : delegatee_(NULL) {}
+
+  void SetDelegatee(Canvas* delegatee);
+
+  virtual void Clear();
+  virtual void Fill(uint8_t red, uint8_t green, uint8_t blue);
+  virtual int width() const { return width_; }
+  virtual int height() const { return height_; }
+  virtual void SetPixel(int x, int y, uint8_t red, uint8_t green, uint8_t blue);
+
+private:
+  int width_;
+  int height_;
+  Canvas *delegatee_;
+};
+
+void Scan64Transformer::TransformCanvas::SetDelegatee(Canvas* delegatee) {
+  delegatee_ = delegatee;
+  // FIXME adjust the width and height correctly
+  width_ = (delegatee->width() / 64) * 32;
+  height_ = 2 * delegatee->height();
+}
+
+void Scan64Transformer::TransformCanvas::Clear() {
+  delegatee_->Clear();
+}
+
+void Scan64Transformer::TransformCanvas::Fill(
+  uint8_t red, uint8_t green, uint8_t blue) {
+  delegatee_->Fill(red, green, blue);
+}
+
+void Scan64Transformer::TransformCanvas::SetPixel(
+  int x, int y, uint8_t red, uint8_t green, uint8_t blue) {
+  // FIXME: compensate for different height screens
+  // if (x < 0 || x >= width_ || y < 0 || y >= height_) return;
+  int tx = 0, ty = 0;
+  if ((x < 8) || (y >= 16 && x < 24)) {
+    tx = y;
+  } else if ((x >=8 && x < 16) || (x >=24 && x < 32)) {
+    tx = 64 + y;
+  }
+
+  if (x < 8) {
+    ty = 15 - x;
+  } else if (x >= 8 && x < 24) {
+    ty = 23 - x;
+  } else if (x >= 24 && x < 32) {
+    ty = 31 - x;
+  }
+  delegatee_->SetPixel(tx, ty, red, green, blue);
+}
+
+Scan64Transformer::Scan64Transformer()
+  : canvas_(new TransformCanvas()) {
+}
+
+Scan64Transformer::~Scan64Transformer() {
+  delete canvas_;
+}
+
+Canvas *Scan64Transformer::Transform(Canvas *output) {
+  assert(output != NULL);
+
+  canvas_->SetDelegatee(output);
+  return canvas_;
+}
+
+
 } // namespace rgb_matrix
