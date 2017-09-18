@@ -271,7 +271,7 @@ void Scan64Transformer::TransformCanvas::SetPixel(
   int x, int y, uint8_t red, uint8_t green, uint8_t blue) {
   if (x < 0 || x >= width_ || y < 0 || y >= height_) return;
   int tx = 0, ty = 0;
-  if ((x < 8) || (y >= 16 && x < 24)) {
+  if ((x < 8) || (x >= 16 && x < 24)) {
     tx = y;
   } else if ((x >=8 && x < 16) || (x >=24 && x < 32)) {
     tx = 64 + y;
