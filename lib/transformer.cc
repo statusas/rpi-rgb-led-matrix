@@ -251,8 +251,11 @@ private:
 void Scan64Transformer::TransformCanvas::SetDelegatee(Canvas* delegatee) {
   delegatee_ = delegatee;
   // FIXME adjust the width and height correctly
-  width_ = (delegatee->width() / 64) * 32;
-  height_ = 2 * delegatee->height();
+  //width_ = (delegatee->width() / 64) * 32;
+  //height_ = 2 * delegatee->height();
+
+  width_ = 32;
+  height_ = 64;
 }
 
 void Scan64Transformer::TransformCanvas::Clear() {
@@ -266,8 +269,7 @@ void Scan64Transformer::TransformCanvas::Fill(
 
 void Scan64Transformer::TransformCanvas::SetPixel(
   int x, int y, uint8_t red, uint8_t green, uint8_t blue) {
-  // FIXME: compensate for different height screens
-  // if (x < 0 || x >= width_ || y < 0 || y >= height_) return;
+  if (x < 0 || x >= width_ || y < 0 || y >= height_) return;
   int tx = 0, ty = 0;
   if ((x < 8) || (y >= 16 && x < 24)) {
     tx = y;
